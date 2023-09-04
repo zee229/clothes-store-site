@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 ### Django ####
-=======
-### Django ###
->>>>>>> 30d6ecbb7dd097be92a9a00afad380bea7b26c65
 *.log
 *.pot
 *.pyc
@@ -10,10 +6,5 @@ __pycache__/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-media/
 .idea/
-<<<<<<< HEAD
 venv/
-=======
-venv/
->>>>>>> 30d6ecbb7dd097be92a9a00afad380bea7b26c65
