@@ -19,6 +19,18 @@ class ProductCategory(models.Model):
         return self.name
 
 
+class ProductBrand(models.Model):
+    name = models.CharField(max_length=128, unique=True)
+    is_popular = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Brand'
+        verbose_name_plural = 'Brands'
+
+    def __str__(self):
+        return self.name
+
+
 class Product(models.Model):
     name = models.CharField(max_length=128)
     description = models.TextField()
@@ -27,13 +39,14 @@ class Product(models.Model):
     image = models.ImageField(upload_to='products_images')
     stripe_product_price_id = models.CharField(max_length=128, null=True, blank=True)
     category = models.ForeignKey(to=ProductCategory, on_delete=models.CASCADE)
+    brand = models.ForeignKey(to=ProductBrand, on_delete=models.CASCADE, null=True)
 
     class Meta:
         verbose_name = 'Product'
         verbose_name_plural = 'Products'
 
     def __str__(self):
-        return f'Product: {self.name} | Category: {self.category}'
+        return f'Product: {self.name} | Category: {self.category} | Brand: {self.brand}'
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if not self.stripe_product_price_id:
