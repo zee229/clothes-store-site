@@ -3,7 +3,8 @@ from http import HTTPStatus
 from django.test import TestCase
 from django.urls import reverse
 
-from products.models import Product, ProductCategory
+from products.models import Product, ProductBrand, ProductCategory
+from products.views import ProductsListView
 
 
 class IndexViewTestCase(TestCase):
@@ -18,7 +19,8 @@ class IndexViewTestCase(TestCase):
 
 
 class ProductsListViewTestCase(TestCase):
-    fixtures = ['categories.json', 'products.json']
+    fixtures = ['categories.json', 'products.json', 'brands.json']
+    paginate_by = ProductsListView.paginate_by
 
     def setUp(self):
         self.products = Product.objects.all()
@@ -30,15 +32,18 @@ class ProductsListViewTestCase(TestCase):
         self._common_tests(response)
         self.assertEqual(list(response.context_data['object_list']), list(self.products[:3]))
 
-    def test_list_with_category(self):
+    def test_list_with_filters(self):
         category = ProductCategory.objects.first()
-        path = reverse('products:category', kwargs={'category_id': category.id})
+        brand = ProductBrand.objects.first()
+        path = reverse('products:filters', kwargs={'category_id': category.id, 'brand_id': brand.id})
         response = self.client.get(path)
 
         self._common_tests(response)
+        filters = {'category_id': category.id, 'brand_id': brand.id}
         self.assertEqual(
             list(response.context_data['object_list']),
-            list(self.products.filter(category_id=category.id))[:3]
+            # list(self.products.filter(category_id=category.id))[:self.paginate_by]
+            list(self.products.filter(**filters))[:self.paginate_by]
         )
 
     def _common_tests(self, response):
