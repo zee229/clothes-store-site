@@ -3,7 +3,7 @@ from django.shortcuts import HttpResponseRedirect
 from django.views.generic import ListView, TemplateView
 
 from common.views import TitleMixin
-from products.models import Basket, Product, ProductCategory
+from products.models import Basket, Product, ProductBrand, ProductCategory
 
 
 class IndexView(TitleMixin, TemplateView):
@@ -21,15 +21,36 @@ class ProductsListView(TitleMixin, ListView):
     template_name = 'products/products.html'
     paginate_by = 3  # 3 products / page
     title = 'Store - Catalog'
+    chosen_category_id = None
+    chosen_brand_id = None
 
     def get_queryset(self):
         queryset = super(ProductsListView, self).get_queryset()
         category_id = self.kwargs.get('category_id')  # from urls.py
-        return queryset.filter(category_id=category_id) if category_id else queryset
+        brand_id = self.kwargs.get('brand_id')
+        filters = {}
+
+        if category_id and category_id != 0:
+            self.chosen_category_id = category_id
+            filters['category_id'] = category_id
+        if brand_id and brand_id != 0:
+            self.chosen_brand_id = brand_id
+            filters['brand_id'] = brand_id
+
+        if filters:
+            return queryset.filter(**filters)
+        else:
+            return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(ProductsListView, self).get_context_data()
+
         context['categories'] = ProductCategory.objects.all()
+        context['category_id'] = self.chosen_category_id
+
+        context['brands'] = ProductBrand.objects.all()
+        context['brand_id'] = self.chosen_brand_id
+
         return context
 
 
